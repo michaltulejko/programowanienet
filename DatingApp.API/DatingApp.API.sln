@@ -1,9 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.4.33213.308
+VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatingApp.API", "DatingApp.API\DatingApp.API.csproj", "{237AF080-DE57-4277-88BE-CD9127E8F0FB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatingApp.API", "DatingApp.API\DatingApp.API.csproj", "{FF3814FA-4528-46E3-9DE0-BCB3417C7BC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatingApp.Models", "DatingApp.Models\DatingApp.Models.csproj", "{719ED8CF-104C-4F23-AB2F-C5CA96757847}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatingApp.DAL", "DatingApp.DAL\DatingApp.DAL.csproj", "{DBBA0E1E-1ECC-4E19-89F0-9F17D5CDB505}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatingApp.BLL", "DatingApp.BLL\DatingApp.BLL.csproj", "{49517BF5-1B41-414F-BF7F-106215C203D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +17,27 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{237AF080-DE57-4277-88BE-CD9127E8F0FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{237AF080-DE57-4277-88BE-CD9127E8F0FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{237AF080-DE57-4277-88BE-CD9127E8F0FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{237AF080-DE57-4277-88BE-CD9127E8F0FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF3814FA-4528-46E3-9DE0-BCB3417C7BC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF3814FA-4528-46E3-9DE0-BCB3417C7BC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF3814FA-4528-46E3-9DE0-BCB3417C7BC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF3814FA-4528-46E3-9DE0-BCB3417C7BC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{719ED8CF-104C-4F23-AB2F-C5CA96757847}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{719ED8CF-104C-4F23-AB2F-C5CA96757847}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{719ED8CF-104C-4F23-AB2F-C5CA96757847}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{719ED8CF-104C-4F23-AB2F-C5CA96757847}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBBA0E1E-1ECC-4E19-89F0-9F17D5CDB505}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBBA0E1E-1ECC-4E19-89F0-9F17D5CDB505}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBBA0E1E-1ECC-4E19-89F0-9F17D5CDB505}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBBA0E1E-1ECC-4E19-89F0-9F17D5CDB505}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49517BF5-1B41-414F-BF7F-106215C203D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49517BF5-1B41-414F-BF7F-106215C203D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49517BF5-1B41-414F-BF7F-106215C203D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49517BF5-1B41-414F-BF7F-106215C203D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {264C834A-691A-48D8-8157-FE3C202F3A9F}
+		SolutionGuid = {006A80D8-457F-448D-AA37-671102805A85}
 	EndGlobalSection
 EndGlobal

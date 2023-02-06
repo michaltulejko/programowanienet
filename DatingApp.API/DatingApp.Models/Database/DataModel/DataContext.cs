@@ -1,31 +1,34 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace DatingApp.Models.Database.DataModel
+namespace DatingApp.Models.Database.DataModel;
+
+public class DataContext : DbContext
 {
-    public class DataContext : DbContext
+    public DataContext()
     {
-        public DataContext(DbContextOptions<DataContext> options) : base(options)
-        {
-        }
+    }
 
-        public DbSet<User> Users { get; set; }
-        public DbSet<Photo> Photos { get; set; }
+    public DataContext(DbContextOptions<DataContext> options) : base(options)
+    {
+    }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public DbSet<User> Users { get; set; }
+    public DbSet<Photo> Photos { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
         {
-            if (!optionsBuilder.IsConfigured)
-            {
 #if DEBUG
-                optionsBuilder.UseSqlite("Data Source=datingapp.db");
+            optionsBuilder.UseSqlite("Data Source=datingapp.db");
 #else
-                optionsBuilder.UseSqlite(DatabaseConfig.ConnectionString);
+            optionsBuilder.UseSqlite(DatabaseConfig.ConnectionString);
 #endif
-            }
         }
+    }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(DataContext).Assembly);
-        }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(DataContext).Assembly);
     }
 }

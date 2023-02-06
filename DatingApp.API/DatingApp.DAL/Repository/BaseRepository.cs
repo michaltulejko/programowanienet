@@ -1,7 +1,7 @@
-﻿using DatingApp.DAL.Repository.Interfaces;
+﻿using System.Linq.Expressions;
+using DatingApp.DAL.Repository.Interfaces;
 using DatingApp.Models.Database.DataModel;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace DatingApp.DAL.Repository;
 

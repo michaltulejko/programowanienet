@@ -1,5 +1,5 @@
-﻿using DatingApp.Models.Database.DataModel;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using DatingApp.Models.Database.DataModel;
 
 namespace DatingApp.DAL.Repository.Interfaces;
 

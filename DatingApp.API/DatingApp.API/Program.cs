@@ -82,12 +82,6 @@ else
     app.UseExceptionHandler();
 }
 
-app.UseSwagger();
-app.UseSwaggerUI(x =>
-{
-    x.SwaggerEndpoint("/swagger/v1/swagger.json", "DatingApp API V1");
-});
-
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -95,6 +89,12 @@ app.UseAuthorization();
 app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
 app.UseCors(x => x.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+
+app.UseSwagger();
+app.UseSwaggerUI(x =>
+{
+    x.SwaggerEndpoint("/swagger/V1/swagger.json", "DatingApp API V1");
+});
 
 MigrateDatabase();
 

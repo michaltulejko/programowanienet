@@ -82,13 +82,19 @@ else
     app.UseExceptionHandler();
 }
 
+app.UseCors(x => x
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .SetIsOriginAllowed(origin => true)
+    .AllowCredentials());
+app.UseHttpsRedirection();
+
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-
-app.UseCors(x => x.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
 app.UseSwagger();
 app.UseSwaggerUI(x =>

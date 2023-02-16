@@ -1,5 +1,5 @@
-using System.Text;
 using DatingApp.API.Helpers;
+using DatingApp.API.Middleware;
 using DatingApp.API.Seed;
 using DatingApp.BLL.Mappers;
 using DatingApp.BLL.Services;
@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,14 +74,7 @@ builder.Services.AddDbContext<DataContext>(x =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-}
-else
-{
-    app.UseExceptionHandler();
-}
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseCors(x => x
     .AllowAnyMethod()

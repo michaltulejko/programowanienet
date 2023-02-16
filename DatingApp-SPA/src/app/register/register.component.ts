@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
 import { RegisterUser } from '../_models/registerUser';
 import { AuthService } from '../_services/auth.service';
 
@@ -22,10 +21,7 @@ export class RegisterComponent implements OnInit {
     country: '',
   };
 
-  constructor(
-    private authService: AuthService,
-    private toastr: ToastrService
-  ) {}
+  constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
     throw new Error('Method not implemented.');
@@ -34,7 +30,7 @@ export class RegisterComponent implements OnInit {
   register() {
     this.authService.register(this.model).subscribe({
       next: () => this.cancel(),
-      error: error => this.toastr.error(error.error.title),
+      error: error => console.log(error),
     });
   }
 

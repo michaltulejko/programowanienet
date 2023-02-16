@@ -25,7 +25,7 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         return user;
     }
 
-    public async Task<User?> Login(string username, string password)
+    public async Task<User?> Login(string? username, string password)
     {
         var user = await Context.Users.Include(u => u.Photos)
             .FirstOrDefaultAsync(x => x.Username == username);

@@ -24,12 +24,14 @@ public class UserController : ControllerBase
         return Ok(await _userService.GetAllAsync());
     }
 
+    [ProducesResponseType(typeof(UserForDetailsDto), StatusCodes.Status200OK)]
     [HttpGet("{id:int}", Name = "GetUser")]
     public async Task<IActionResult> GetUser(int id)
     {
         return Ok(await _userService.GetUserAsync(id));
     }
 
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateUser(int id, UserForUpdateDto user)
     {

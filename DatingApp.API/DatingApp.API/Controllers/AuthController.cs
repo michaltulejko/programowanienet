@@ -17,6 +17,7 @@ public class AuthController : ControllerBase
     }
 
     [AllowAnonymous]
+    [ProducesResponseType(typeof(UserForDetailsDto), StatusCodes.Status200OK)]
     [HttpPost("register")]
     public async Task<IActionResult> Register(UserForRegisterDto user)
     {
@@ -28,6 +29,7 @@ public class AuthController : ControllerBase
     }
 
     [AllowAnonymous]
+    [ProducesResponseType(typeof(AuthenticatedUserDto), StatusCodes.Status200OK)]
     [HttpPost("login")]
     public async Task<IActionResult> Login(UserForLoginDto user)
     {

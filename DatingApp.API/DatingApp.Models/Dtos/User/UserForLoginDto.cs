@@ -4,14 +4,15 @@ namespace DatingApp.Models.Dtos.User;
 
 public class UserForLoginDto
 {
-    private string _userName;
+    private string? _userName;
 
     [Required]
-    public string Username
+    public string? Username
     {
-        get => _userName.ToLower();
+        get => _userName?.ToLower();
         set => _userName = value;
     }
 
-    [Required] public string Password { get; set; }
+    [Required]
+    public string Password { get; set; }
 }

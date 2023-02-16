@@ -1,6 +1,7 @@
 ﻿using DatingApp.API.Extensions;
 using DatingApp.BLL.Services.Interfaces;
 using DatingApp.Models.Dtos.Photo;
+using DatingApp.Models.Dtos.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,7 @@ public class PhotoController : ControllerBase
         _photoService = photoService;
     }
 
+    [ProducesResponseType(typeof(PhotoForReturnDto), StatusCodes.Status200OK)]
     [HttpGet("{id:int}", Name = "GetPhoto")]
     public async Task<IActionResult> GetPhoto(int id)
     {
@@ -26,6 +28,7 @@ public class PhotoController : ControllerBase
         return Ok(photo);
     }
 
+    [ProducesResponseType(typeof(PhotoForReturnDto), StatusCodes.Status200OK)]
     [HttpPost]
     public async Task<IActionResult> AddPhotoForUser(int userId, [FromForm] PhotoForCreationDto photo)
     {
@@ -35,6 +38,7 @@ public class PhotoController : ControllerBase
         return CreatedAtRoute("GetPhoto", new { userId, id = uploadedPhoto.Id }, uploadedPhoto);
     }
 
+    [ProducesResponseType(typeof(PhotoForReturnDto), StatusCodes.Status200OK)]
     [HttpPut("{photoId:int}/setMain")]
     public async Task<IActionResult> SetPhotoAsMain(int userId, int photoId)
     {
@@ -44,6 +48,7 @@ public class PhotoController : ControllerBase
         return CreatedAtRoute("GetPhoto", new { userId, id = photo.Id }, photo);
     }
 
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [HttpDelete("{photoId:int}")]
     public async Task<IActionResult> DeletePhoto(int userId, int photoId)
     {

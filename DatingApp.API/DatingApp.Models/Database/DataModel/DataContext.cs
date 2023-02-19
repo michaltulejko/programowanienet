@@ -1,8 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace DatingApp.Models.Database.DataModel;
 
-public class DataContext : DbContext
+public class DataContext : IdentityDbContext<AppUser, AppRole, int,
+    IdentityUserClaim<int>, AppUserRole, IdentityUserLogin<int>,
+    IdentityRoleClaim<int>, IdentityUserToken<int>>
 {
     public DataContext()
     {
@@ -12,8 +16,10 @@ public class DataContext : DbContext
     {
     }
 
-    public DbSet<User> Users { get; set; }
-    public DbSet<Photo> Photos { get; set; }
+    public DbSet<UserLike> Likes { get; set; }
+    public DbSet<Message> Messages { get; set; }
+    public DbSet<Group> Groups { get; set; }
+    public DbSet<Connection> Connections { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -29,6 +35,7 @@ public class DataContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(DataContext).Assembly);
     }
 }

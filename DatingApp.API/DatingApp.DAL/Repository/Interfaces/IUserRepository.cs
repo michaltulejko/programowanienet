@@ -1,13 +1,15 @@
 ﻿using DatingApp.DAL.Helpers;
 using DatingApp.Models.Database.DataModel;
-using DatingApp.Models.Dtos.User;
+using DatingApp.Models.Dtos;
 
 namespace DatingApp.DAL.Repository.Interfaces;
 
-public interface IUserRepository : IGenericRepository<User>
+public interface IUserRepository
 {
-    Task<User> Register(User user, string password);
-    Task<User?> Login(string? username, string password);
-    Task<bool> UserExistsAsync(string username);
-    Task<PagedList<User>> GetPaged(UserParams @params);
+    void Update(AppUser user);
+    Task<IEnumerable<AppUser>> GetUsersAsync();
+    Task<AppUser> GetUserByIdAsync(int id);
+    Task<AppUser> GetUserByUsernameAsync(string username);
+    Task<PagedList<MemberDto>> GetMembersAsync(UserParams userParams);
+    Task<MemberDto> GetMemberAsync(string username);
 }

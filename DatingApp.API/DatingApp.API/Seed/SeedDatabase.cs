@@ -1,40 +1,61 @@
-﻿using DatingApp.DAL.Helpers;
+﻿using System.Text.Json;
 using DatingApp.Models.Database.DataModel;
-using Newtonsoft.Json;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace DatingApp.API.Seed;
 
 public static class SeedDatabase
 {
-    public static void SeedUsers(DataContext context)
+    public static async Task ClearConnections(DataContext context)
     {
-        if (!context.Users.Any())
+        context.Connections.RemoveRange(context.Connections);
+        await context.SaveChangesAsync();
+    }
+
+    public static async Task SeedUsers(UserManager<AppUser> userManager,
+        RoleManager<AppRole> roleManager)
+    {
+        if (await userManager.Users.AnyAsync()) return;
+
+        var userData = await File.ReadAllTextAsync("Seed/UserData.json");
+
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+        var users = JsonSerializer.Deserialize<List<AppUser>>(userData);
+
+        var roles = new List<AppRole>
         {
-            var userData = File.ReadAllText("Seed/UserData.json");
-            var userList = JsonConvert.DeserializeObject<List<User>>(userData);
-            if (userList != null)
-            {
-                foreach (var user in userList)
-                {
-                    PasswordHelper.CreatePasswordHash("password", out var passwordHash, out var passwordSalt);
-                    user.PasswordHash = passwordHash;
-                    user.PasswordSalt = passwordSalt;
-                    user.Username = user.Username.ToLower();
-                }
+            new() { Name = "Member" },
+            new() { Name = "Admin" },
+            new() { Name = "Moderator" }
+        };
 
-                context.Users.AddRange(userList);
-            }
+        foreach (var role in roles) await roleManager.CreateAsync(role);
 
-            context.SaveChanges();
+        foreach (var user in users)
+        {
+            user.UserName = user.UserName.ToLower();
+            user.Created = DateTime.SpecifyKind(user.Created, DateTimeKind.Utc);
+            user.LastActive = DateTime.SpecifyKind(user.LastActive, DateTimeKind.Utc);
+            await userManager.CreateAsync(user, "Pa$$w0rd");
+            await userManager.AddToRoleAsync(user, "Member");
         }
 
-        if (context.Photos.Count() > 1000) return;
+        var admin = new AppUser
+        {
+            UserName = "admin",
+            City = "admin",
+            Country = "admin",
+            DateOfBirth = DateOnly.FromDateTime(DateTime.Today),
+            Gender = "Male",
+            Interests = "admin",
+            Introduction = "admin",
+            LookingFor = "admin",
+            KnownAs = "admin"
+        };
 
-        var photoData = File.ReadAllText("Seed/PhotoData.json");
-        var photoList = JsonConvert.DeserializeObject<List<Photo>>(photoData);
-
-        if (photoList != null) context.Photos.AddRange(photoList);
-
-        context.SaveChanges();
+        await userManager.CreateAsync(admin, "Pa$$w0rd");
+        await userManager.AddToRolesAsync(admin, new[] { "Admin", "Moderator" });
     }
 }

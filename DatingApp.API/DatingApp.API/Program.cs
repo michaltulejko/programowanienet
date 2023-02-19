@@ -1,45 +1,45 @@
+using DatingApp.API.Extensions;
 using DatingApp.API.Helpers;
 using DatingApp.API.Middleware;
 using DatingApp.API.Seed;
 using DatingApp.BLL.Mappers;
 using DatingApp.BLL.Services;
 using DatingApp.BLL.Services.Interfaces;
+using DatingApp.BLL.Services.SignalR;
 using DatingApp.DAL.Repository;
 using DatingApp.DAL.Repository.Interfaces;
 using DatingApp.Models.Configuration;
 using DatingApp.Models.Database.DataModel;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddCors();
 
-builder.Services.Configure<CloudStorageConfig>(builder.Configuration.GetSection("CloudStorageConfig"));
-builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudStorageConfig"));
 
 #region Repository
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IPhotoRepository, PhotoRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 #endregion
 
 #region Services
 
-builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddSignalR();
 
 #endregion
 
-builder.Services.AddScoped<LogUserActivityFilter>();
+builder.Services.AddScoped<LogUserActivity>();
 
-builder.Services.AddAutoMapper(typeof(UserProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(AppUserProfile).Assembly);
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
@@ -53,20 +53,6 @@ builder.Services.AddSwaggerGen(x =>
 {
     x.SwaggerDoc("V1", new OpenApiInfo { Title = "DatingApp API", Version = "V1" });
 });
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey =
-                new SymmetricSecurityKey(
-                    Encoding.ASCII.GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value!)),
-            ValidateIssuer = true,
-            ValidateAudience = false
-        };
-    });
 
 builder.Services.AddDbContext<DataContext>(x =>
     x.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -88,23 +74,33 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+app.MapControllers();
+app.MapHub<PresenceHub>("hubs/presence");
+app.MapHub<MessageHub>("hubs/message");
 
 app.UseSwagger();
-app.UseSwaggerUI(x =>
-{
-    x.SwaggerEndpoint("/swagger/V1/swagger.json", "DatingApp API V1");
-});
+app.UseSwaggerUI(x => { x.SwaggerEndpoint("/swagger/V1/swagger.json", "DatingApp API V1"); });
 
 MigrateDatabase();
 
 app.Run();
 
-void MigrateDatabase()
+async void MigrateDatabase()
 {
-    using var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
-    using var context = serviceScope.ServiceProvider.GetService<DataContext>();
-    context!.Database.Migrate();
-
-    SeedDatabase.SeedUsers(context);
+    using var scope = app.Services.CreateScope();
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<DataContext>();
+        var userManager = services.GetRequiredService<UserManager<AppUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
+        await context.Database.MigrateAsync();
+        await SeedDatabase.ClearConnections(context);
+        await SeedDatabase.SeedUsers(userManager, roleManager);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred during migration");
+    }
 }

@@ -1,60 +1,77 @@
-﻿using DatingApp.DAL.Helpers;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using DatingApp.DAL.Helpers;
 using DatingApp.DAL.Repository.Interfaces;
 using DatingApp.Models.Database.DataModel;
-using DatingApp.Models.Dtos.User;
+using DatingApp.Models.Dtos;
 using Microsoft.EntityFrameworkCore;
 
 namespace DatingApp.DAL.Repository;
 
-public class UserRepository : BaseRepository<User>, IUserRepository
+public class UserRepository : IUserRepository
 {
-    public UserRepository(DataContext context) : base(context)
+    private readonly DataContext _context;
+    private readonly IMapper _mapper;
+
+    public UserRepository(DataContext context, IMapper mapper)
     {
+        _mapper = mapper;
+        _context = context;
     }
 
-    public async Task<User> Register(User user, string password)
+    public async Task<MemberDto> GetMemberAsync(string username)
     {
-        PasswordHelper.CreatePasswordHash(password, out var passwordHash, out var passwordSalt);
-
-        user.PasswordHash = passwordHash;
-        user.PasswordSalt = passwordSalt;
-
-        await Context.Users.AddAsync(user);
-        await Context.SaveChangesAsync();
-
-        return user;
+        return await _context.Users
+            .Where(x => x.UserName == username)
+            .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
+            .SingleOrDefaultAsync();
     }
 
-    public async Task<User?> Login(string? username, string password)
+    public async Task<PagedList<MemberDto>> GetMembersAsync(UserParams userParams)
     {
-        var user = await Context.Users.Include(u => u.Photos)
-            .FirstOrDefaultAsync(x => x.Username == username);
+        var query = _context.Users.AsQueryable();
 
-        return user == null ? null :
-            !PasswordHelper.VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt) ? null : user;
+        query = query.Where(u => u.UserName != userParams.CurrentUsername);
+        query = query.Where(u => u.Gender == userParams.Gender);
+
+        var minDob = DateOnly.FromDateTime(DateTime.Today.AddYears(-userParams.MaxAge - 1));
+        var maxDob = DateOnly.FromDateTime(DateTime.Today.AddYears(-userParams.MinAge));
+
+        query = query.Where(u => u.DateOfBirth >= minDob && u.DateOfBirth <= maxDob);
+
+        query = userParams.OrderBy switch
+        {
+            "created" => query.OrderByDescending(u => u.Created),
+            _ => query.OrderByDescending(u => u.LastActive)
+        };
+
+        return await PagedList<MemberDto>.CreateAsync(
+            query.AsNoTracking().ProjectTo<MemberDto>(_mapper.ConfigurationProvider),
+            userParams.PageNumber,
+            userParams.PageSize);
     }
 
-    public async Task<bool> UserExistsAsync(string username)
+    public async Task<AppUser> GetUserByIdAsync(int id)
     {
-        return await Context.Users.AnyAsync(x => x.Username == username);
+        return await _context.Users.FindAsync(id);
     }
 
-    public async Task<PagedList<User>> GetPaged(UserParams @params)
+    public async Task<AppUser> GetUserByUsernameAsync(string username)
     {
-        var users = Context.Users.Include(u => u.Photos);
-
-        return await PagedList<User>.CreateAsync(users, @params.PageNumber, @params.PageSize);
+        return await _context.Users
+            .Include(p => p.Photos)
+            .SingleOrDefaultAsync(x => x.UserName == username);
     }
 
-    public override async Task<User?> GetByIdAsync(int id)
+    public async Task<IEnumerable<AppUser>> GetUsersAsync()
     {
-        var user = await Context.Users.Include(x => x.Photos).FirstOrDefaultAsync(x => x.Id == id);
-
-        return user;
+        return await _context.Users
+            .Include(p => p.Photos)
+            .ToListAsync();
     }
 
-    public override IQueryable<User> GetAll()
+    public void Update(AppUser user)
     {
-        return Context.Users.Include(x => x.Photos);
+        _context.Entry(user).State = EntityState.Modified;
     }
 }

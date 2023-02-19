@@ -1,32 +1,36 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../_services/auth.service';
+import { ToastrService } from 'ngx-toastr';
+import { Observable, of } from 'rxjs';
+import { User } from '../_models/user';
+import { AccountService } from '../_services/account.service';
 
 @Component({
   selector: 'app-nav',
   templateUrl: './nav.component.html',
-  styleUrls: ['./nav.component.css'],
+  styleUrls: ['./nav.component.css']
 })
 export class NavComponent implements OnInit {
   model: any = {};
 
-  constructor(public authService: AuthService, private router: Router) {}
+  constructor(public accountService: AccountService, private router: Router, 
+    private toastr: ToastrService) { }
 
   ngOnInit(): void {
-    console.log(null);
   }
 
   login() {
-    this.authService.login(this.model).subscribe({
-      next: () => this.router.navigateByUrl('/members'),
-      error: error => {
-        console.log(error);
-      },
-    });
+    this.accountService.login(this.model).subscribe({
+      next: _ => {
+        this.router.navigateByUrl('/members');
+        this.model = {};
+      }
+    })
   }
 
   logout() {
-    this.authService.logout();
+    this.accountService.logout();
     this.router.navigateByUrl('/');
   }
+
 }

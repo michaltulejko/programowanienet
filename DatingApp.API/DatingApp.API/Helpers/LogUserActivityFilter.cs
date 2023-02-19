@@ -1,22 +1,22 @@
-﻿using System.Security.Claims;
-using DatingApp.BLL.Services.Interfaces;
+﻿using DatingApp.BLL.Extensions;
+using DatingApp.DAL.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace DatingApp.API.Helpers;
 
-public class LogUserActivityFilter : IAsyncActionFilter
+public class LogUserActivity : IAsyncActionFilter
 {
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         var resultContext = await next();
 
-        var value = resultContext.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (value != null)
-        {
-            var userId = int.Parse(value);
-            var userService = resultContext.HttpContext.RequestServices.GetService<IUserService>();
+        if (!resultContext.HttpContext.User.Identity.IsAuthenticated) return;
 
-            await userService!.UpdateUserActivityAsync(userId);
-        }
+        var userId = resultContext.HttpContext.User.GetUserId();
+
+        var uow = resultContext.HttpContext.RequestServices.GetRequiredService<IUnitOfWork>();
+        var user = await uow.UserRepository.GetUserByIdAsync(userId);
+        user.LastActive = DateTime.UtcNow;
+        await uow.Complete();
     }
 }
